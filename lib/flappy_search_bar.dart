@@ -72,6 +72,16 @@ class SearchBarController<T> {
     }
   }
 
+  void appendSearchResults(
+      List<T> newResults) {
+    try {
+      _list.addAll(newResults);
+      _controllerListener?.onListChanged(_list);
+    } catch (error) {
+      _controllerListener?.onError(error);
+    }
+  }
+
   void injectSearch(
       String searchText, Future<List<T>> Function(String text) onSearch) {
     if (searchText != null && searchText.length >= minimumChars) {
@@ -215,6 +225,9 @@ class SearchBar<T> extends StatefulWidget {
   /// Set a padding on the list
   final EdgeInsetsGeometry listPadding;
 
+  /// ScrollController for search results grid view
+  ScrollController resultsScrollController = ScrollController();
+
   SearchBar({
     Key key,
     @required this.onSearch,
@@ -246,6 +259,7 @@ class SearchBar<T> extends StatefulWidget {
     this.listPadding = const EdgeInsets.all(0),
     this.searchBarPadding = const EdgeInsets.all(0),
     this.headerPadding = const EdgeInsets.all(0),
+    this.resultsScrollController,
   }) : super(key: key);
 
   @override
@@ -351,6 +365,7 @@ class _SearchBarState<T> extends State<SearchBar<T>>
         itemBuilder: (BuildContext context, int index) {
           return builder(items[index], index);
         },
+        controller: widget.resultsScrollController,
       ),
     );
   }
